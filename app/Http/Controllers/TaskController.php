@@ -5,65 +5,71 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $tasks = Task::query()->paginate(10);
-        return view('Task.index',compact('tasks'));
-
+        $tasks = Task::with(['assignedTo', 'assignedBy'])->paginate(10);
+        return view('Task.index', compact('tasks'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $users = User::all();
-        return view('Task.create',compact('users'));
+        return view('Task.create', compact('users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-      
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        Task::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'user_id' => $validated['user_id'],
+            'assigned_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
 
-    /** 
-     * Display the specified resource.
-     */
     public function show(Task $task)
     {
-        return view('Task.view');
+        return view('Task.view', compact('task'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Task $task)
     {
-        return view('Task.edit');
+        $users = User::all();
+        return view('Task.edit', compact('task', 'users'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Task $task)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $task->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'user_id' => $validated['user_id'],
+        ]);
+
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Task $task)
     {
-        //
+        $task->delete();
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
     }
 }

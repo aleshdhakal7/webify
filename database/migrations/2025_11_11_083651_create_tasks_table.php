@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
@@ -16,13 +13,11 @@ return new class extends Migration
             $table->string('title');
             $table->longText('description')->nullable();
 
-            // Foreign key to users table (creator)
-            $table->foreignId('user_id')
+            $table->foreignId('user_id') // assigned_to
                   ->constrained('users')
                   ->onDelete('cascade');
 
-            // Foreign key for assigned_by (also referencing users table)
-            $table->foreignId('assigned_by')
+            $table->foreignId('assigned_by') // creator
                   ->constrained('users')
                   ->onDelete('cascade');
 
@@ -30,9 +25,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('tasks');
