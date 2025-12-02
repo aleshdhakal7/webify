@@ -23,6 +23,11 @@
                 <a href="{{ route('tasks.create') }}" class="btn btn-outline-success">+ Create Task</a>
                 <a href="{{ route('tasks.index') }}" class="btn btn-outline-info"> View Tasks</a>
             </div>
+            <form method="POST" action="{{ route('logout') }}">
+    @csrf
+    <button type="submit" class="btn btn-outline-danger">Logout</button>
+</form>
+
         </div>
     </div>
 </nav>
